@@ -18,7 +18,7 @@ namespace nm {
 
 		Matrix<T> result(lhs.shape[0], lhs.shape[1]);
 		for (int i = 0; i < lhs.shape[0] * lhs.shape[1]; ++i) {
-			result.data[i] = lhs.data[i] + rhs.data[i];
+			result._data[i] = lhs._data[i] + rhs._data[i];
 		}
 		return result;
 	}
@@ -32,7 +32,7 @@ namespace nm {
 
 		Matrix<T> result(lhs.shape[0], lhs.shape[1]);
 		for (int i = 0; i < lhs.shape[0] * lhs.shape[1]; ++i) {
-			result.data[i] = lhs.data[i] - rhs.data[i];
+			result._data[i] = lhs._data[i] - rhs._data[i];
 		}
 		return result;
 	}
@@ -69,41 +69,6 @@ namespace nm {
 					rhs.data, rhs.shape[1],
 					0.0f, result.data, result.shape[1]);
 		return result;
-	}
-
-	Matrix<int> operator*(const Matrix<int>& lhs, const Matrix<int>& rhs) {
-		if (lhs.shape[1] != rhs.shape[0]) {
-			// Return an empty matrix (or handle size mismatch error)
-			return Matrix<int>(0,0);
-		}
-
-		// Create temporary float matrices for casting
-		Matrix<float> lhsFloat(lhs.shape[0], lhs.shape[1]);
-		Matrix<float> rhsFloat(rhs.shape[0], rhs.shape[1]);
-
-		// Cast int data to float
-		for (int i = 0; i < lhs.shape[0] * lhs.shape[1]; ++i) {
-			lhsFloat.data[i] = static_cast<float>(lhs.data[i]);
-		}
-		for (int i = 0; i < rhs.shape[0] * rhs.shape[1]; ++i) {
-			rhsFloat.data[i] = static_cast<float>(rhs.data[i]);
-		}
-
-		// Multiply using MKL
-		Matrix<float> resultFloat(lhs.shape[0], rhs.shape[1]);
-		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-					lhs.shape[0], rhs.shape[1], lhs.shape[1],
-					1.0f, lhsFloat.data, lhs.shape[1],
-					rhsFloat.data, rhs.shape[1],
-					0.0f, resultFloat.data, resultFloat.shape[1]);
-
-		// Cast float result back to int
-		Matrix<int> resultInt(lhs.shape[0], rhs.shape[1]);
-		for (int i = 0; i < resultInt.shape[0] * resultInt.shape[1]; ++i) {
-			resultInt.data[i] = static_cast<int>(resultFloat.data[i]);
-		}
-
-		return resultInt;
 	}
 }  // namespace nm
 
