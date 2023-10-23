@@ -9,19 +9,15 @@
 #include "mkl.h"
 
 namespace nm::linalg {
-inline void lu(Matrix<float>& A)
+inline void lu(Matrix<float> const& mat)
 {
-    LAPACKE_mkl_sgetrfnp(LAPACK_ROW_MAJOR, A.shape[0], A.shape[1], A.data, A.shape[1]);
+    LAPACKE_mkl_sgetrfnp(LAPACK_ROW_MAJOR, mat.shape[0], mat.shape[1], mat.data, mat.shape[1]);
 }
 
-float sse(Matrix<float>& A, Matrix<float>& B)
+inline float norm(Matrix<float> const& mat, char norm_type)
 {
-    float result = 0.0;
-    for (int i = 0; i < A.shape[0] * A.shape[1]; ++i) {
-        auto e = A.data[i] - B.data[i];
-        result += e * e;
-    }
-    return result;
+    return LAPACKE_slange(LAPACK_ROW_MAJOR, norm_type, mat.shape[0], mat.shape[1], mat.data,
+                          mat.shape[1]);
 }
 } // namespace nm::linalg
 

@@ -19,37 +19,47 @@ auto time_func_ms(Func lambda) -> i64
     return duration.count();
 }
 
+void print() {
+    std::cout << "\n";  // print a newline when we reach the end
+}
+
+template <typename T, typename... Args>
+void print(const T& str, const Args&... args) {
+    std::cout << str << " ";
+    print(args...);
+}
+
 int main()
 {
     using namespace nm;
     using namespace std::chrono;
 
-    const int N = 2400;
+    const int N = 2048;
     Matrix<float> A = randMatrix<float>(N, N);
-    Matrix<float> B = randMatrix<float>(N, N);
+    for (int i = 0; i < N; ++i) {
+        A[i][i] += 2;
+        A[i][i] *= 2;
+    }
     auto C = A;
     auto D = A;
     auto E = A;
 
     auto t_ms = time_func_ms([&]() { sequential_lu(A.shape[0], A.data); });
-    std::cout << "sq took " << t_ms << " milliseconds."
-              << "\n";
-    std::cout << (double)(A[101][204]) << "\n";
+    print("sequential took", t_ms, "milliseconds.");
+    print((A[50][50]));
 
     t_ms = time_func_ms([&]() { avx_lu(C.shape[0], C.data); });
-    std::cout << "avx took " << t_ms << " milliseconds."
-              << "\n";
-    std::cout << (double)(C[101][204]) << "\n";
-
-    t_ms = time_func_ms([&]() { omp_lu(D.shape[0], D.data); });
-    std::cout << "omp took " << t_ms << " milliseconds."
-              << "\n";
-    std::cout << (double)(C[101][204]) << "\n";
+    print("avx took", t_ms, "milliseconds.");
+    print((C[50][50]));
 
     t_ms = time_func_ms([&]() { linalg::lu(E); });
-    std::cout << "mkl took " << t_ms << " milliseconds."
-              << "\n";
-    std::cout << (double)(E[101][204]) << "\n";
+    print("mkl took", t_ms, "milliseconds.");
+    print((E[50][50]));
 
+
+    auto m = E - D;
+    float res = linalg::norm(m, 'l');
+    print("norm of difference is", res);
+    //printMatrix(m);
     return 0;
 }

@@ -16,3 +16,9 @@ BraceWrapping:
 PointerAlignment: Left
 AlwaysBreakTemplateDeclarations: Yes
 ColumnLimit: 100
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: Inline
+AllowShortLoopsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Empty

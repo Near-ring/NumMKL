@@ -2,8 +2,7 @@
 #include "mkl.h"
 #include <array>
 #include <initializer_list>
-#include <iomanip>
-#include <sstream>
+#include <cstdio>
 
 namespace nm {
 
@@ -19,10 +18,7 @@ class Matrix
     Type* const& data = _data;
     const std::array<int, 2>& shape = _shape;
 
-    Matrix(int i, int j) : _shape({i, j})
-    {
-        _data = (Type*)mkl_malloc(i * j * sizeof(Type), 64);
-    }
+    Matrix(int i, int j) : _shape({i, j}) { _data = (Type*)mkl_malloc(i * j * sizeof(Type), 64); }
 
     Matrix(int i, int j, void* data, bool gc = false) : _shape({i, j}), _data((Type*)data)
     {
@@ -50,9 +46,7 @@ class Matrix
     {
         _data = (Type*)mkl_malloc(other.shape[0] * other.shape[1] * sizeof(Type), 64);
         const size_t size = other.shape[0] * other.shape[1];
-        for (int i = 0; i < size; ++i) {
-            _data[i] = other._data[i];
-        }
+        std::memcpy(_data, other._data, size * sizeof(Type));
     }
 
     // Move constructor
@@ -66,13 +60,13 @@ class Matrix
     Matrix& operator=(const Matrix& other)
     {
         if (this != &other) {
-            if (gc)
-                mkl_free(_data);
             _shape = other._shape;
-            _data = (Type*)mkl_malloc(other.shape[0] * other.shape[1] * sizeof(Type), 64);
-            for (int i = 0; i < other.shape[0] * other.shape[1]; ++i) {
-                _data[i] = other._data[i];
+            const size_t size = other.shape[0] * other.shape[1];
+            if (_shape[0] * _shape[1] != size) {
+                if (gc) mkl_free(_data);
+                _data = (Type*)mkl_malloc(size * sizeof(Type), 64);
             }
+            std::memcpy(_data, other._data, size * sizeof(Type));
         }
         return *this;
     }
@@ -81,8 +75,7 @@ class Matrix
     Matrix& operator=(Matrix&& other) noexcept
     {
         if (this != &other) {
-            if (gc)
-                mkl_free(_data);
+            if (gc) mkl_free(_data);
             _shape = other._shape;
             _data = other._data;
 
@@ -92,32 +85,14 @@ class Matrix
         return *this;
     }
 
-    inline Type* operator[](int i)
-    {
-        return _data + i * _shape[1];
-    }
-    inline Type* operator[](int i) const
-    {
-        return _data + i * _shape[1];
-    }
+    inline Type* operator[](int i) { return _data + i * _shape[1]; }
+    inline Type* operator[](int i) const { return _data + i * _shape[1]; }
 
-    inline const Type& operator()(int i)
-    {
-        return _data[i];
-    }
-    inline const Type& operator()(int i) const
-    {
-        return _data[i];
-    }
+    inline const Type& operator()(int i) { return _data[i]; }
+    inline const Type& operator()(int i) const { return _data[i]; }
 
-    inline const Type& operator()(int i, int j)
-    {
-        return _data[i * _shape[1] + j];
-    }
-    inline const Type& operator()(int i, int j) const
-    {
-        return _data[i * _shape[1] + j];
-    }
+    inline const Type& operator()(int i, int j) { return _data[i * _shape[1] + j]; }
+    inline const Type& operator()(int i, int j) const { return _data[i * _shape[1] + j]; }
 
     [[nodiscard]] Matrix<Type> operator()(const std::array<int, 2>& row_range,
                                           const std::array<int, 2>& col_range) const
@@ -155,12 +130,10 @@ class Matrix
 
     bool operator==(const Matrix<Type>& other) const
     {
-        if (_shape != other._shape)
-            return false;
+        if (_shape != other._shape) return false;
         int l = _shape[0] * _shape[1];
         for (int i = 0; i < l; ++i) {
-            if (_data[i] != other._data[i])
-                return false;
+            if (_data[i] != other._data[i]) return false;
         }
         return true;
     }
@@ -188,34 +161,14 @@ class Matrix
         return result;
     }
 
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-
-        // Find the maximum width of the entries.
-        int max_width = 0;
-        for (int i = 0; i < _shape[0]; ++i) {
-            for (int j = 0; j < _shape[1]; ++j) {
-                int current_width = std::to_string((*this)[i][j]).length();
-                max_width = std::max(max_width, current_width);
-            }
-        }
-
-        // Use the max width to format the output.
-        for (int i = 0; i < _shape[0]; ++i) {
-            for (int j = 0; j < _shape[1]; ++j) {
-                ss << std::setw(max_width + 1) << (*this)[i][j];
-            }
-            ss << '\n';
-        }
-
-        return ss.str();
-    }
+    Matrix<Type> operator+(const Matrix<Type>& B) const;
+    Matrix<Type> operator-(const Matrix<Type>& B) const;
+    Matrix<float> operator*(const Matrix<float>& B) const;
+    Matrix<double> operator*(const Matrix<double>& B) const;
 
     ~Matrix()
     {
-        if (gc)
-            mkl_free(_data);
+        if (gc) mkl_free(_data);
     }
 };
 } // namespace nm
