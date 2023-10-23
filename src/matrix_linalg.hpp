@@ -19,6 +19,8 @@ inline float norm(Matrix<float> const& mat, char norm_type)
     return LAPACKE_slange(LAPACK_ROW_MAJOR, norm_type, mat.shape[0], mat.shape[1], mat.data,
                           mat.shape[1]);
 }
+
+
 } // namespace nm::linalg
 
 #endif // NUMMKL_MATRIX_LINALG_HPP

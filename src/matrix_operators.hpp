@@ -64,6 +64,20 @@ Matrix<double> Matrix<double>::operator*(const Matrix<double>& B) const
     return result;
 }
 
+template<>
+float Matrix<float>::min() const
+{
+    auto i = cblas_isamin(_shape[0] * _shape[1], _data, 1);
+    return _data[i];
+}
+
+template<>
+float Matrix<float>::max() const
+{
+    auto i = cblas_isamax(_shape[0] * _shape[1], _data, 1);
+    return _data[i];
+}
+
 template <typename T>
 void printMatrix(Matrix<T> const& mat) {
     auto matrix = mat.data;

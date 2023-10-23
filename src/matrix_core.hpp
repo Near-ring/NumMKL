@@ -88,11 +88,11 @@ class Matrix
     inline Type* operator[](int i) { return _data + i * _shape[1]; }
     inline Type* operator[](int i) const { return _data + i * _shape[1]; }
 
-    inline const Type& operator()(int i) { return _data[i]; }
-    inline const Type& operator()(int i) const { return _data[i]; }
+    inline Type& operator()(int i) { return _data[i]; }
+    inline Type& operator()(int i) const { return _data[i]; }
 
-    inline const Type& operator()(int i, int j) { return _data[i * _shape[1] + j]; }
-    inline const Type& operator()(int i, int j) const { return _data[i * _shape[1] + j]; }
+    inline Type& operator()(int i, int j) { return _data[i * _shape[1] + j]; }
+    inline Type& operator()(int i, int j) const { return _data[i * _shape[1] + j]; }
 
     [[nodiscard]] Matrix<Type> operator()(const std::array<int, 2>& row_range,
                                           const std::array<int, 2>& col_range) const
@@ -165,6 +165,8 @@ class Matrix
     Matrix<Type> operator-(const Matrix<Type>& B) const;
     Matrix<float> operator*(const Matrix<float>& B) const;
     Matrix<double> operator*(const Matrix<double>& B) const;
+    float min() const;
+    float max() const;
 
     ~Matrix()
     {

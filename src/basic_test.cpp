@@ -36,9 +36,13 @@ int main()
 
     const int N = 2048;
     Matrix<float> A = randMatrix<float>(N, N);
+    // make A strict diagonally dominant
     for (int i = 0; i < N; ++i) {
-        A[i][i] += 2;
-        A[i][i] *= 2;
+        float sum = 0;
+        for (int j = 0; j < N; ++j) {
+            sum += std::abs(A(i, j));
+        }
+        A(i * N + i) = sum;
     }
     auto C = A;
     auto D = A;
@@ -52,14 +56,18 @@ int main()
     print("avx took", t_ms, "milliseconds.");
     print((C[50][50]));
 
+    t_ms = time_func_ms([&]() { omp_lu(D.shape[0], D.data); });
+    print("omp took", t_ms, "milliseconds.");
+    print((D[50][50]));
+
     t_ms = time_func_ms([&]() { linalg::lu(E); });
     print("mkl took", t_ms, "milliseconds.");
     print((E[50][50]));
 
-
-    auto m = E - D;
-    float res = linalg::norm(m, 'l');
+    auto m = E - C;
+    print(m[50][50]);
+    float res = linalg::norm(m, 'f');
     print("norm of difference is", res);
-    //printMatrix(m);
+    print("max difference is", m.max());
     return 0;
 }
