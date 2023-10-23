@@ -1,17 +1,18 @@
 # Generated from CLion C/C++ Code Style settings
 BasedOnStyle: Microsoft
 BraceWrapping:
-  AfterCaseLabel: false
-  AfterClass: true
+  #AfterCaseLabel: false
+  #AfterClass: true
   AfterControlStatement: MultiLine
-  AfterEnum: true
+  #AfterEnum: true
   AfterFunction: true
-  AfterNamespace: true
-  AfterUnion: true
-  BeforeCatch: true
+  AfterNamespace: false
+  #AfterUnion: true
+  #BeforeCatch: true
   BeforeElse: true
-  IndentBraces: false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
+  #IndentBraces: false
+  #SplitEmptyFunction: true
+  #SplitEmptyRecord: true
 PointerAlignment: Left
 AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 100

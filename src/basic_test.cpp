@@ -47,7 +47,7 @@ int main()
     std::cout << (double)(C[101][204]) << "\n";
 
     t_ms = time_func_ms([&]() { linalg::lu(E); });
-    std::cout << "omp took " << t_ms << " milliseconds."
+    std::cout << "mkl took " << t_ms << " milliseconds."
               << "\n";
     std::cout << (double)(E[101][204]) << "\n";
 
