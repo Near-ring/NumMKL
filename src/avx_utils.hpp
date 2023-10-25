@@ -5,7 +5,8 @@
 #pragma once
 #include <immintrin.h>
 
-typedef long long i64;
+namespace nm{
+typedef long long int i64;
 
 inline void avx_copy_f32(const float* A, float* B, size_t l)
 {
@@ -97,4 +98,5 @@ inline void sub8f32_ps(const float* src, __m256 subtrahend, float* dst)
     __m256 v8f32_A = _mm256_load_ps(src);
     __m256 v8f32_C = _mm256_sub_ps(v8f32_A, subtrahend);
     _mm256_store_ps(dst, v8f32_C);
+}
 }

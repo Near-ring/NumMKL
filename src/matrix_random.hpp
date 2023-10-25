@@ -18,7 +18,7 @@ class RandomGenerator
   public:
     RandomGenerator()
     {
-        vslNewStream(&stream, VSL_BRNG_MT19937, 777);
+        vslNewStream(&stream, VSL_BRNG_MT19937, 124);
     }
 
     ~RandomGenerator()
@@ -31,6 +31,7 @@ class RandomGenerator
         vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, matrix.shape[0] * matrix.shape[1],
                      matrix.data, 0.0, 1.0);
     }
+
     void fillUniformRandom(Matrix<float>& matrix)
     {
         vsRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, matrix.shape[0] * matrix.shape[1],

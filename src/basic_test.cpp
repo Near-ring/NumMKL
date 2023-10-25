@@ -5,11 +5,10 @@
 #include "matrix_random.hpp"
 #include <chrono>
 #include <iostream>
-
-typedef long long i64;
+#include "matrix_utils.hpp"
 
 template <typename Func>
-auto time_func_ms(Func lambda) -> i64
+auto time_func_ms(Func lambda)
 {
     using namespace std::chrono;
     auto start = high_resolution_clock::now();
@@ -32,42 +31,45 @@ void print(const T& str, const Args&... args) {
 int main()
 {
     using namespace nm;
-    using namespace std::chrono;
 
-    const int N = 2048;
-    Matrix<float> A = randMatrix<float>(N, N);
+    const int N = 4096;
+    auto A = randMatrix<float>(N, N);
     // make A strict diagonally dominant
     for (int i = 0; i < N; ++i) {
         float sum = 0;
         for (int j = 0; j < N; ++j) {
             sum += std::abs(A(i, j));
         }
-        A(i * N + i) = sum;
+        A(i, i) = sum;
     }
+
+    auto B = A;
     auto C = A;
     auto D = A;
     auto E = A;
+    i64 t_ms;
 
-    auto t_ms = time_func_ms([&]() { sequential_lu(A.shape[0], A.data); });
-    print("sequential took", t_ms, "milliseconds.");
-    print((A[50][50]));
+//    t_ms = time_func_ms([&]() { sequential_lu(A.shape[0], A.data); });
+//    print("sequential took", t_ms, "milliseconds.");
+//    print((A[50][50]));
 
-    t_ms = time_func_ms([&]() { avx_lu(C.shape[0], C.data); });
-    print("avx took", t_ms, "milliseconds.");
-    print((C[50][50]));
+//    t_ms = time_func_ms([&]() { avx_lu(B.shape[0], B.data); });
+//    print("avx took", t_ms, "milliseconds.");
 
-    t_ms = time_func_ms([&]() { omp_lu(D.shape[0], D.data); });
-    print("omp took", t_ms, "milliseconds.");
-    print((D[50][50]));
+    t_ms = time_func_ms([&]() { block_lu(C, 32); });
+    print("block lu took", t_ms, "milliseconds.");
 
-    t_ms = time_func_ms([&]() { linalg::lu(E); });
+    t_ms = time_func_ms([&]() { block_lu_std_thread(E, 32); });
+    print("block lu thread took", t_ms, "milliseconds.");
+
+    t_ms = time_func_ms([&]() { linalg::lu(D); });
     print("mkl took", t_ms, "milliseconds.");
-    print((E[50][50]));
 
-    auto m = E - C;
-    print(m[50][50]);
-    float res = linalg::norm(m, 'f');
-    print("norm of difference is", res);
+    auto m = D - C;
+    auto res = linalg::norm(m, 'f');
+    print("Frobenius norm of difference is", res);
     print("max difference is", m.max());
+    print("mean of difference is", mean(m));
+    print("END OF PROGRAM");
     return 0;
 }
