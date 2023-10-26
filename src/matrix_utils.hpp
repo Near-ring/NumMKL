@@ -72,6 +72,32 @@ auto block_divide(nm::Matrix<float> const& A, int block_size)
     return blocks;
 }
 
+template <typename T>
+auto lu_extract(const Matrix<T>& lu)
+{
+    using namespace nm;
+    using std::array;
+    array<Matrix<T>, 2> l_u = {Matrix<T>(lu.shape[0], lu.shape[1]),
+                               Matrix<T>(lu.shape[0], lu.shape[1])};
+    for (int i = 0; i < lu.shape[0]; ++i) {
+        for (int j = 0; j < lu.shape[1]; ++j) {
+            if (i == j) {
+                l_u[0](i, j) = 1.0;
+                l_u[1](i, j) = lu(i, j);
+            }
+            else if (i > j) {
+                l_u[0](i, j) = lu(i, j);
+                l_u[1](i, j) = 0.0;
+            }
+            else {
+                l_u[0](i, j) = 0.0;
+                l_u[1](i, j) = lu(i, j);
+            }
+        }
+    }
+    return l_u;
+}
+
 } // namespace nm
 
 #endif // NUMMKL_MATRIX_UTILS_HPP

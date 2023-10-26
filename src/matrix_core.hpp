@@ -1,8 +1,8 @@
 #pragma once
 #include "mkl.h"
 #include <array>
-#include <cstdio>
 #include <initializer_list>
+#include <iostream>
 
 namespace nm {
 
@@ -46,7 +46,8 @@ class Matrix
     }
 
   private:
-    inline void deep_copy(const Matrix& other) {
+    inline void deep_copy(const Matrix& other)
+    {
         for (int i = 0; i < _shape[0]; ++i) {
             for (int j = 0; j < _shape[1]; ++j) {
                 _data[i * _lda + j] = other._data[i * other._lda + j];
@@ -82,23 +83,6 @@ class Matrix
         other._shape = {0, 0};
     }
 
-    // Move assignment operator
-    Matrix& operator=(Matrix&& other) noexcept
-    {
-        if (this != &other) {
-            if (gc) mkl_free(_data);
-            _shape = other._shape;
-            _data = other._data;
-            _lda = other._lda;
-            gc = other.gc;
-
-            other._data = nullptr;
-            other._shape = {0, 0};
-            other._lda = 0;
-        }
-        return *this;
-    }
-
     // Copy constructor
     Matrix(const Matrix& other) : _shape(other._shape), gc(true)
     {
@@ -115,27 +99,20 @@ class Matrix
         }
     }
 
-    // Copy assignment
-    Matrix& operator=(const Matrix& other) {
+    Matrix& operator=(const Matrix& other)
+    {
         if (this != &other) {
             if (_shape == other._shape) {
                 deep_copy(other);
                 return *this;
             }
-            const size_t size = _shape[0] * _shape[1];
-            const size_t size_other = other._shape[0] * other._shape[1];
-            if (size != size_other)
-            {
-                if (gc) mkl_free(_data);
-                _data = (Type*)mkl_malloc(size_other * sizeof(Type), 64);
-                gc = true;
-            }
-            _shape = other._shape;
-            _lda = other._lda;
-            deep_copy(other);
+            else
+                std::cerr << "\n[WARNING] Math error: assigning matrix with different shape\n\n";
         }
         return *this;
     }
+
+    //Matrix& operator=(Matrix&& other) noexcept = default;
 
     inline Type& operator()(int i, int j) { return data[i * _lda + j]; }
     inline Type& operator()(int i, int j) const { return data[i * _lda + j]; }
@@ -148,16 +125,16 @@ class Matrix
         if (_shape != other._shape) return false;
         for (int i = 0; i < _shape[0]; ++i) {
             for (int j = 0; j < _shape[1]; ++j) {
-                if (*(_data + i * _lda + j) != *(other._data + i * other._lda + j)) return false;
+                if (_data[i * _lda + j] != other._data[i * other._lda + j]) return false;
             }
         }
         return true;
     }
 
-    void reshape(int i, int j) {}
-
     Matrix<Type> operator+(const Matrix<Type>& B) const;
+    Matrix<Type>& operator+=(const Matrix<Type>& B);
     Matrix<Type> operator-(const Matrix<Type>& B) const;
+    Matrix<Type>& operator-=(const Matrix<Type>& B);
     Matrix<float> operator*(const Matrix<float>& B) const;
     Matrix<double> operator*(const Matrix<double>& B) const;
     [[nodiscard]] float min() const;

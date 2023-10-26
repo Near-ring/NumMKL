@@ -27,7 +27,7 @@ inline float norm(Matrix<float>& mat, char norm_type)
     return LAPACKE_slange(LAPACK_ROW_MAJOR, norm_type, m, n, mat.data, lda);
 }
 
-inline void solve_triangular(Matrix<float>& a, Matrix<float>& b, char side = 'l',
+inline void solve_triangular(const Matrix<float>& a, Matrix<float>& b, char side = 'l',
                              bool lower = false, bool unit_diagonal = false)
 {
     auto sd = side == 'l' ? CblasLeft : CblasRight;

@@ -8,12 +8,20 @@ set(COMPILER_ROOT "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/windows/c
 include_directories(${MKL_ROOT}/include)
 link_directories(${MKL_ROOT}/lib/intel64)
 link_directories(${COMPILER_ROOT})
+
+set(omp 0)
+#link_directories(${TBB_ROOT})
 #link_libraries(mkl_intel_ilp64.lib mkl_tbb_thread.lib mkl_core.lib tbb12.lib)
-link_libraries(mkl_intel_ilp64.lib mkl_intel_thread.lib mkl_core.lib libiomp5md.lib)
+if (omp)
+    link_libraries(mkl_intel_ilp64.lib mkl_intel_thread.lib mkl_core.lib libiomp5md.lib)
+else ()
+    link_libraries(mkl_intel_ilp64.lib mkl_sequential.lib mkl_core.lib)
+endif ()
+
 add_compile_options(/DMKL_ILP64)
 
 if (MSVC)
-    #add_compile_options(/O2)
+    #add_compile_options(/O1)
 endif ()
 
 find_package(OpenMP)
@@ -33,4 +41,6 @@ add_executable(
         src/lu.hpp
         src/matrix_linalg.hpp
         src/matrix_utils.hpp
+        src/cpp_utils.hpp
+        src/num_mkl.hpp
 )

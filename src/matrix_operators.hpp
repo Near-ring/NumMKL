@@ -6,7 +6,7 @@
 #define NUMMKL_MARTIX_OPERATORS_HPP
 #include "matrix_core.hpp"
 #include "mkl_cblas.h"
-#include <cstdio>
+#include <iostream>
 
 namespace nm {
 
@@ -14,7 +14,7 @@ template <typename T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& B) const
 {
     if (_shape != B.shape) {
-        printf("[Warning] +: Shape mismatch\n");
+        std::cerr << "[Warning] (+): Shape mismatch\n";
         return *this;
     }
     Matrix<T> result(shape[0], shape[1]);
@@ -27,10 +27,25 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& B) const
 }
 
 template <typename T>
+Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& B)
+{
+    if (_shape != B.shape) {
+        std::cerr << "[Warning] (-=): Shape mismatch\n";
+        return *this;
+    }
+    for (int i = 0; i < shape[0]; ++i) {
+        for (int j = 0; j < shape[1]; ++j) {
+            _data[i * _lda + j] += B(i, j);
+        }
+    }
+    return *this;
+}
+
+template <typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T>& B) const
 {
     if (_shape != B.shape) {
-        printf("[Warning] -: Shape mismatch\n");
+        std::cerr << "[Warning] (-): Shape mismatch\n";
         return *this;
     }
     Matrix<T> res(shape[0], shape[1]);
@@ -42,12 +57,30 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T>& B) const
     return res;
 }
 
+template <typename T>
+Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& B)
+{
+    if (_shape != B.shape) {
+        std::cerr << "[Warning] (-=): Shape mismatch\n";
+        return *this;
+    }
+    for (int i = 0; i < shape[0]; ++i) {
+        for (int j = 0; j < shape[1]; ++j) {
+            _data[i * _lda + j] -= B(i, j);
+        }
+    }
+    return *this;
+}
+
+
+
 // For single precision
 template <>
 Matrix<float> Matrix<float>::operator*(const Matrix<float>& B) const
 {
     if (_shape[1] != B.shape[0]) {
-        return {0, 0, 0, nullptr};
+        std::cerr << "[Warning] (*): Shape mismatch\n";
+        return *this;
     }
     Matrix<float> result(_shape[0], B.shape[1]);
     const i64 M = _shape[0];
@@ -70,7 +103,8 @@ template <>
 Matrix<double> Matrix<double>::operator*(const Matrix<double>& B) const
 {
     if (_shape[1] != B.shape[0]) {
-        return {0, 0, nullptr};
+        std::cerr << "[Warning] (*): Shape mismatch\n";
+        return *this;
     }
     Matrix<double> result(_shape[0], B.shape[1]);
     const i64 M = _shape[0];
@@ -113,6 +147,7 @@ void printMatrix(Matrix<T> const& mat) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 } // namespace nm
