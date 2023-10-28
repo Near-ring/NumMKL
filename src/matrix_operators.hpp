@@ -138,7 +138,6 @@ float Matrix<float>::max() const
 
 template <typename T>
 void printMatrix(Matrix<T> const& mat) {
-    auto matrix = mat.data;
     int rows = mat.shape[0];
     int cols = mat.shape[1];
     for (int i = 0; i < rows; ++i) {

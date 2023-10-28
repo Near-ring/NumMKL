@@ -73,7 +73,7 @@ auto block_divide(nm::Matrix<float> const& A, int block_size)
 }
 
 template <typename T>
-auto lu_extract(const Matrix<T>& lu)
+auto lu_extract(const Matrix<T>& lu) -> std::array<Matrix<T>, 2>
 {
     using namespace nm;
     using std::array;
@@ -98,6 +98,25 @@ auto lu_extract(const Matrix<T>& lu)
     return l_u;
 }
 
-} // namespace nm
+Matrix<f32> transpose(Matrix<f32> const& mat)
+{
+    Matrix<f32> result(mat.shape[1], mat.shape[0]);
+    const i64 M = mat.shape[0];
+    const i64 N = mat.shape[1];
+    const f32 alpha = 1.0;
+    const f32* mA = mat.data;
+    const i64 ldA = mat.lda;
+    f32* mB = result.data;
+    const i64 ldB = result.lda;
+    mkl_somatcopy(CblasRowMajor, CblasTrans, M, N, alpha, mA, ldA, mB, ldB);
+    return result;
+}
 
+template <typename T>
+inline Matrix<T> trans(Matrix<T> const& mat)
+{
+    return transpose(mat);
+}
+
+} // namespace nm
 #endif // NUMMKL_MATRIX_UTILS_HPP

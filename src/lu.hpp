@@ -100,9 +100,8 @@ void block_lu(nm::Matrix<float>& A, int block_size)
         // update matrix in south-east corner
         for (int ii = i + 1; ii < block_count; ii++) {
             for (int jj = i + 1; jj < block_count; jj++) {
-                block[ii][jj] -= block[ii][i] * block[i][jj];
-                //block[ii][jj] = block[ii][jj] - block[ii][i] * block[i][jj];
-                //matmul(-1.0, block[ii][i], block[i][jj], 1.0, block[ii][jj]);
+                //block[ii][jj] -= block[ii][i] * block[i][jj];
+                matmul(-1.0, block[ii][i], block[i][jj], 1.0, block[ii][jj]);
             }
         }
     }
@@ -150,9 +149,6 @@ void block_lu_std_thread(nm::Matrix<float>& A, int block_size)
         // update matrix in south-east corner
         for (int ii = i + 1; ii < block_count; ii++) {
             for (int jj = i + 1; jj < block_count; jj++) {
-                //                auto t = block[ii][i] * block[i][jj];
-                //                auto v = block[ii][jj] - t;
-                //                block[ii][jj] = v;
                 matmul(-1.0, block[ii][i], block[i][jj], 1.0, block[ii][jj]);
             }
         }

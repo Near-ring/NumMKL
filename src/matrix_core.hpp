@@ -65,7 +65,6 @@ class Matrix
         _lda = cols;
         _data = static_cast<Type*>(mkl_malloc(rows * cols * sizeof(Type), 64));
         //_data = (Type*)_aligned_malloc(rows * cols * sizeof(Type), 256);
-        printf("data: %p\n", _data);
         int idx = 0;
         for (const auto& row : list) {
             for (const auto& val : row) {
@@ -81,11 +80,13 @@ class Matrix
         other._lda = 0;
         other._data = nullptr;
         other._shape = {0, 0};
+        other.gc = false;
     }
 
     // Copy constructor
     Matrix(const Matrix& other) : _shape(other._shape), gc(true)
     {
+        printf("Copy constructor\n");
         const size_t size = _shape[0] * _shape[1];
         _data = (Type*)mkl_malloc(size * sizeof(Type), 64);
 
@@ -101,6 +102,7 @@ class Matrix
 
     Matrix& operator=(const Matrix& other)
     {
+        printf("Copy assignment\n");
         if (this != &other) {
             if (_shape == other._shape) {
                 deep_copy(other);
@@ -137,6 +139,7 @@ class Matrix
     Matrix<Type>& operator-=(const Matrix<Type>& B);
     Matrix<float> operator*(const Matrix<float>& B) const;
     Matrix<double> operator*(const Matrix<double>& B) const;
+
     [[nodiscard]] float min() const;
     [[nodiscard]] float max() const;
 

@@ -10,15 +10,12 @@ BraceWrapping:
   #AfterUnion: true
   #BeforeCatch: true
   BeforeElse: true
-  #IndentBraces: false
-  #SplitEmptyFunction: true
-  #SplitEmptyRecord: true
 PointerAlignment: Left
 AlwaysBreakTemplateDeclarations: Yes
 ColumnLimit: 100
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortLambdasOnASingleLine: Inline
-AllowShortLoopsOnASingleLine: true
+#AllowShortLoopsOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 AllowShortBlocksOnASingleLine: Empty
